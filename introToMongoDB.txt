@@ -1,0 +1,109 @@
+Create a database called 'my_first_db'.
+> use my_first_db
+
+Create students collection.
+> db.createCollection("students")
+
+
+Each document you insert into this collection should have the following format: ({name: STRING, home_state: STRING, lucky_number: NUMBER, birthday: {month: NUMBER, day: NUMBER, year: NUMBER}})
+Create 5 students with the appropriate info.
+> db.students.insert({name: "Harry", home_state: "WA", lucky_number: 731, birthday: {month: 7, day: 31, year: 1997}})
+WriteResult({ "nInserted" : 1 })
+> db.students.insert({name: "Ron", home_state: "OR", lucky_number: 301, birthday: {month: 3, day: 1, year: 1997}})
+WriteResult({ "nInserted" : 1 })
+> db.students.insert({name: "Hermione", home_state: "PA", lucky_number: 919, birthday: {month: 9, day: 19, year: 1997}})
+WriteResult({ "nInserted" : 1 })
+> db.students.insert({name: "Draco", home_state: "NY", lucky_number: 605, birthday: {month: 6, day: 5, year: 1997}})
+WriteResult({ "nInserted" : 1 })
+> db.students.insert({name: "Neville", home_state: "MA", lucky_number: 730, birthday: {month: 7, day: 30, year: 1997}})
+
+Get all students.
+> db.students.find()
+{ "_id" : ObjectId("5c0580530ebeec79559dbdb0"), "name" : "Harry", "home_state" : "WA", "lucky_number" : 731, "birthday" : { "month" : 7, "day" : 31, "year" : 1997 } }
+{ "_id" : ObjectId("5c05807f0ebeec79559dbdb1"), "name" : "Ron", "home_state" : "OR", "lucky_number" : 301, "birthday" : { "month" : 3, "day" : 1, "year" : 1997 } }
+{ "_id" : ObjectId("5c0580b20ebeec79559dbdb2"), "name" : "Hermione", "home_state" : "PA", "lucky_number" : 919, "birthday" : { "month" : 9, "day" : 19, "year" : 1997 } }
+{ "_id" : ObjectId("5c0580e30ebeec79559dbdb3"), "name" : "Draco", "home_state" : "NY", "lucky_number" : 605, "birthday" : { "month" : 6, "day" : 5, "year" : 1997 } }
+{ "_id" : ObjectId("5c05810f0ebeec79559dbdb4"), "name" : "Neville", "home_state" : "MA", "lucky_number" : 730, "birthday" : { "month" : 7, "day" : 30, "year" : 1997 } }
+
+Retrieve all students who are from California (San Jose Dojo) or Washington (Seattle Dojo).
+> db.students.insert({name: "Lavender", home_state: "CA", lucky_number: 1101, birthday: {month: 11, day: 1, year: 1997}})
+> db.students.find({home_state: "CA"}).pretty()
+{
+        "_id" : ObjectId("5c0582090ebeec79559dbdb5"),
+        "name" : "Lavender",
+        "home_state" : "CA",
+        "lucky_number" : 1101,
+        "birthday" : {
+                "month" : 11,
+                "day" : 1,
+                "year" : 1997
+        }
+}
+
+Get all students whose lucky number is:
+greater than 3
+> db.students.find({lucky_number: {$gt: 3} }).pretty()
+
+less than or equal to 10
+> db.students.find({lucky_number: {$lte: 10} }).pretty()
+
+between 1 and 9 (inclusive)
+> db.students.find( { $and: [ {lucky_number: { $gt: 400 } }, {lucky_number: { $lt: 1000 } } ] } ).pretty()
+
+
+Add a field to each student collection called 'interests' that is an ARRAY.  It should contain the following entries: 'coding', 'brunch', 'MongoDB'. Do this in ONE operation.
+> db.students.update({}, {$set: {interests: ['coding', 'brunch', 'MongoDB']}}, { multi: true})
+
+
+Add some unique interests for each particular student into each of their interest arrays.
+> db.students.update( { name: "Harry" }, { $addToSet: { interests: "Quidditch" } } )
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.students.update( { name: "Ron" }, { $addToSet: { interests: "Hermione" } } )
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.students.update( { name: "Hermione" }, { $addToSet: { interests: "Ron" } } )
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.students.update( { name: "Draco" }, { $addToSet: { interests: "Creating Chaos" } } )
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.students.update( { name: "Neville" }, { $addToSet: { interests: "Herbology" } } )
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.students.update( { name: "Lavender" }, { $addToSet: { interests: "Muggle Studies" } } )
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+
+Add the interest 'taxes' into someone's interest array.
+> db.students.update( { name: "Harry" }, { $addToSet: { interests: "Quidditch" } } )
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+
+Remove the 'taxes' interest you just added.
+> db.students.update( { name: "Harry" }, { $addToSet: { interests: "Quidditch" } } )
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+
+Remove all students who are from California (or Washington).
+> db.students.remove( { "home_state": { $in: [ "CA", "WA" ] } } )
+
+
+Remove a student by name. 
+> db.students.remove( { name: "Neville" } )
+
+
+Remove a student whose lucky number is greater than 5 (JUST ONE)
+> db.students.remove( { lucky_number: { $gt: 5 } }, true )
+
+Add a field to each student collection called 'number_of_belts' and set it to 0.
+db.students.update( {}, { $set: { number_of_belts: 0 } }, { multi: true } )
+
+
+Increment this field by 1 for all students in Washington (Seattle Dojo).
+> db.students.update( {}, { $set: { number_of_belts: 1 } }, { multi: true } )
+
+
+Rename the 'number_of_belts' field to 'belts_earned'
+> db.students.updateMany( {}, { $rename: { "number_of_belts": "belts_earned" } } )
+
+Remove the 'lucky_number' field.
+> db.students.updateMany( {}, { $unset: { lucky_number: "" } } )
+
+Add a 'updated_on' field, and set the value as the current date.
+> db.students.update( {}, { $currentDate: { updated_on: true } }, {multi: true} )
